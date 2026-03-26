@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Members Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0f0a1e;
+            --bg-card: #1a1425;
+            --bg-hover: #2a2238;
+            --border: rgba(255, 255, 255, 0.05);
+            --text-white: #ffffff;
+            --text-gray: #9ca3af;
+            --text-light: #d1d5db;
+            --purple: #a855f7;
+            --purple-dark: #7c3aed;
+            --blue: #3b82f6;
+            --green: #22c55e;
+            --orange: #f97316;
+            --red: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            min-height: 100vh;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-dark);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 24px 32px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav {
+            padding: 0 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-gray);
+            text-decoration: none;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--text-white);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.2), transparent);
+            border-left: 3px solid var(--purple);
+            color: var(--text-white);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px 32px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-gray);
+        }
+
+        .search-box input {
+            width: 300px;
+            padding: 12px 16px 12px 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-white);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-gray);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, var(--green), #16a34a);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .stat-icon.blue {
+            background: linear-gradient(135deg, var(--blue), #2563eb);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--green);
+        }
+
+        .stat-change svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Members Table */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.1));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-header p {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .total-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(168, 85, 247, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .total-badge span:first-child {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .total-badge span:last-child {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 16px 24px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        tbody td {
+            padding: 16px 24px;
+            font-size: 14px;
+        }
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .member-name {
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-paid {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--green);
+        }
+
+        .badge-pending {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--purple);
+        }
+
+        .badge-overdue {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--green);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-expiring {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--orange);
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
+        }
+
+        .badge-expired {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .text-muted {
+            color: var(--text-gray);
+        }
+
+        .table-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-footer p {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .table-footer span {
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            background: var(--bg-hover);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-gray);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination button:hover {
+            background: var(--bg-card);
+            color: var(--text-white);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            .logo-text, .nav-item span {
+                display: none;
+            }
+            .main {
+                margin-left: 80px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main {
+                margin-left: 0;
+                padding: 16px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            .search-box input {
+                width: 100%;
+            }
+            table {
+                font-size: 12px;
+            }
+            thead th, tbody td {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6.5 6.5h11M6.5 17.5h11M6 20v-6a2 2 0 012-2h8a2 2 0 012 2v6M6 4v6a2 2 0 002 2h8a2 2 0 002-2V4"/>
+                    </svg>
+                </div>
+                <span class="logo-text">Life Fitness</span>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                    </svg>
+                    <span>Members</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span>Schedule</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6"/>
+                    </svg>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item logout-nav" onclick="logout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-title">
+                    <h1>Dashboard</h1>
+                    <p>Primary / Dashboard</p>
+                </div>
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search members...">
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value" id="totalMembers">0</div>
+                    <div class="stat-label">Total Members</div>
+                    <div class="stat-change">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                        +12% from last month
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">Active Now</div>
+                    <div class="stat-change">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                        +8% from yesterday
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value">₱48,295</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                    <div class="stat-change">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                        +23% from last month
+                    </div>
+                </div>
+            </div>
+
+            <!-- Members Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <div>
+                        <h2>Members List</h2>
+                        <p>Manage your gym members</p>
+                    </div>
+                    <div class="total-badge">
+                        <span>Total:</span>
+                        <span id="tableTotal">0</span>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Member Name</th>
+                            <th>Payment</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Membership Deadline</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody">
+                        <!-- Members will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+
+                <div class="table-footer">
+                    <p>Showing <span id="showingCount">0</span> members</p>
+                    <div class="pagination">
+                        <button onclick="changePage(-1)">Previous</button>
+                        <button onclick="changePage(1)">Next</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Members Data
+        const membersData = [
+            {
+                id: 1,
+                name: 'Sarah Johnson',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '08:30 AM',
+                checkOut: '10:45 AM',
+                membershipDeadline: 'Dec 15, 2025',
+                status: 'active'
+            },
+            {
+                id: 2,
+                name: 'Mike Chen',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '09:15 AM',
+                checkOut: '11:30 AM',
+                membershipDeadline: 'Jan 20, 2026',
+                status: 'active'
+            },
+            {
+                id: 3,
+                name: 'Emma Davis',
+                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'pending',
+                checkIn: '07:45 AM',
+                checkOut: '09:00 AM',
+                membershipDeadline: 'Nov 30, 2025',
+                status: 'expiring'
+            },
+            {
+                id: 4,
+                name: 'James Wilson',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '10:00 AM',
+                checkOut: '12:15 PM',
+                membershipDeadline: 'Mar 5, 2026',
+                status: 'active'
+            },
+            {
+                id: 5,
+                name: 'Lisa Anderson',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'overdue',
+                checkIn: '--',
+                checkOut: '--',
+                membershipDeadline: 'Oct 1, 2025',
+                status: 'expired'
+            },
+            {
+                id: 6,
+                name: 'David Brown',
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '08:00 AM',
+                checkOut: '10:30 AM',
+                membershipDeadline: 'Feb 28, 2026',
+                status: 'active'
+            },
+            {
+                id: 7,
+                name: 'Anna Martinez',
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '11:00 AM',
+                checkOut: '01:15 PM',
+                membershipDeadline: 'Apr 10, 2026',
+                status: 'active'
+            },
+            {
+                id: 8,
+                name: 'Chris Taylor',
+                avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'pending',
+                checkIn: '--',
+                checkOut: '--',
+                membershipDeadline: 'Dec 1, 2025',
+                status: 'pending'
+            },
+            {
+                id: 9,
+                name: 'Jessica Lee',
+                avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '06:30 AM',
+                checkOut: '08:45 AM',
+                membershipDeadline: 'May 15, 2026',
+                status: 'active'
+            },
+            {
+                id: 10,
+                name: 'Robert Garcia',
+                avatar: 'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=100&h=100&fit=crop&crop=face',
+                paymentStatus: 'paid',
+                checkIn: '05:45 AM',
+                checkOut: '07:30 AM',
+                membershipDeadline: 'Jun 20, 2026',
+                status: 'active'
+            }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filteredMembers = [...membersData];
+
+        // Get payment badge HTML
+        function getPaymentBadge(status) {
+            const badges = {
+                paid: '<span class="badge badge-paid">Paid</span>',
+                pending: '<span class="badge badge-pending">Pending</span>',
+                overdue: '<span class="badge badge-overdue">Overdue</span>'
+            };
+            return badges[status] || '';
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const badges = {
+                active: '<span class="badge badge-active">Active</span>',
+                expiring: '<span class="badge badge-expiring">Expiring</span>',
+                expired: '<span class="badge badge-expired">Expired</span>',
+                pending: '<span class="badge badge-pending">Pending</span>'
+            };
+            return badges[status] || '';
+        }
+
+        // Render members table
+        function renderMembers() {
+            const tbody = document.getElementById('membersTableBody');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageMembers = filteredMembers.slice(start, end);
+
+            tbody.innerHTML = pageMembers.map(member => `
+                <tr>
+                    <td>
+                        <div class="member-info">
+                            <img src="${member.avatar}" alt="${member.name}" class="member-avatar">
+                            <span class="member-name">${member.name}</span>
+                        </div>
+                    </td>
+                    <td>${getPaymentBadge(member.paymentStatus)}</td>
+                    <td class="${member.checkIn === '--' ? 'text-muted' : ''}">${member.checkIn}</td>
+                    <td class="${member.checkOut === '--' ? 'text-muted' : ''}">${member.checkOut}</td>
+                    <td>${member.membershipDeadline}</td>
+                    <td>${getStatusBadge(member.status)}</td>
+                </tr>
+            `).join('');
+
+            // Update showing count
+            document.getElementById('showingCount').textContent = filteredMembers.length;
+        }
+
+        // Update total members count
+        function updateTotalMembers() {
+            const totalElement = document.getElementById('totalMembers');
+            const tableTotalElement = document.getElementById('tableTotal');
+            const total = membersData.length;
+            
+            // Animate count up
+            let current = 0;
+            const increment = Math.ceil(total / 30);
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= total) {
+                    current = total;
+                    clearInterval(timer);
+                }
+                totalElement.textContent = current.toLocaleString();
+                tableTotalElement.textContent = current.toLocaleString();
+            }, 30);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            filteredMembers = membersData.filter(member => 
+                member.name.toLowerCase().includes(query)
+            );
+            currentPage = 1;
+            renderMembers();
+        });
+
+        // Pagination
+        function changePage(direction) {
+            const maxPage = Math.ceil(filteredMembers.length / itemsPerPage);
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > maxPage) currentPage = maxPage;
+            renderMembers();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTotalMembers();
+            renderMembers();
+        });
+
+        // Logout function - redirects to login page
+        function logout() {
+            // Clear user session from localStorage
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberedEmail');
+
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
